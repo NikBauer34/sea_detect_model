@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Геолокация и загрузка видео</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #videoContainer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Запрос геолокации</h1>
+<button id="getLocation">Получить геию</button>
+
+<div id="videoContainer">
+    <h1>Загрузите видео</h1>
+    <input type="file" id="videoUpload" accept="video/*">
+    <button id="processVideo">Обработать видео</button>
+</div>
+
+<script>
+    let coords
+    document.getElementById('getLocation').addEventListener('click', () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                coords = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                alert(`Геолокация получена: ${coords.latitude}, ${coords.longitude}`);
+                
+                // Показать контейнер для загрузки видео после получения геолокации
+                document.getElementById('videoContainer').style.display = 'block';
+            }, (error) => {
+                alert(`Ошибка получения геолокации: ${error.message}`);
+            });
+        } else {
+            alert("Геолокация не поддерживается вашим браузером.");
+        }
+    });
+
+    document.getElementById('processVideo').addEventListener('click', async () => {
+        console.log('hi')
+        const videoFile = document.getElementById('videoUpload').files[0];
+
+        if (!videoFile) {
+            alert("Пожалуйста, загрузите видео файл.");
+            return;
+        }
+
+        const videoElement = document.createElement('video');
+        videoElement.src = URL.createObjectURL(videoFile);
+        videoElement.muted = true;
+
+        videoElement.addEventListener('loadedmetadata', async () => {
+            videoElement.currentTime = 0;
+
+            // Обработка кадров
+            const fps = 30;  // число кадров в секунду
+            const interval = 1000 / (fps * 2); // интервал между отправкой кадров (каждый второй кадр)
+
+            while (videoElement.currentTime < videoElement.duration) {
+                await new Promise(resolve => {
+                    setTimeout(() => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Установка размера канваса
+                        canvas.width = videoElement.videoWidth;
+                        canvas.height = videoElement.videoHeight;
+
+                        // Рисуем текущий кадр
+                        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                        console.log(coords)
+                        // Отправка кадра на сервер
+                        canvas.toBlob(async (blob) => {
+                            const formData = new FormData();
+                            formData.append('img', blob, `frame-${Math.floor(videoElement.currentTime)}.png`);
+                            // При необходимости добавляем геолокацию
+                            formData.append('gps', [coords.latitude, coords.longitude]);
+                            formData.append('camera_name', 'camera1')
+                            await fetch('http://127.0.0.1:70/upload', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            // Увеличиваем текущее время для следующего кадра
+                            videoElement.currentTime += 0.1; // сделать шаг +0.1 секунды (можно регулировать)
+
+                            resolve();
+                        });
+                    }, interval);
+                });
+            }
+        });
+
+        videoElement.play();
+    });
+</script>
+
+</body>
+</html>
