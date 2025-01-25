@@ -15,7 +15,8 @@ import shutil
 app = FastAPI()
 origins = [
     # разрешенные источники
-"*"
+   "https://sea-front.vercel.app",
+   "https://sea-bot.onrender.com"
 ]
 
 app.add_middleware(
@@ -81,7 +82,7 @@ async def upload(file: UploadFile = File(...)):
         if frame_count % 5 == 0:
             _, img_encoded = cv2.imencode('.jpg', frame)
             values={'camera_name': 'camera1', 'gps': [5, 5]}
-            response = await requests.post('http://127.0.0.1:70/upload', files={'frame': img_encoded.tobytes()}, data=values)
+            response = await requests.post('https://sea-bot.onrender.com/upload', files={'frame': img_encoded.tobytes()}, data=values)
             print('hvhvvvh')
 
     cap.release()
@@ -109,7 +110,7 @@ async def upload_video(img: UploadFile = File(...), camera_name = Form(...), gps
                 freeze_list.append(camera_name)
                 files={'files': open(f"{IMAGEDIR}{img.filename}", "rb")}
                 values={'camera_name': camera_name, 'gps': gps, 'chat_id': data[camera_name]}
-                r = requests.post('http://127.0.0.1:8080/upload_file', files=files, data=values)
+                r = requests.post('https://sea-bot.onrender.com/upload_file', files=files, data=values)
                 print(values)
     
     return {'data': message}
