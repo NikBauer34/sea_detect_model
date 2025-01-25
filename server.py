@@ -115,6 +115,8 @@ async def upload_video(img: UploadFile = File(...), camera_name = Form(...), gps
     return {'data': message}
 #http://127.0.0.1:70/ типа так
 if __name__ == "__main__":
+    if not os.path.exists('inputs'):
+        os.makedirs('inputs')
     folder = 'inputs'
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
