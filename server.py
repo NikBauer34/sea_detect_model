@@ -42,6 +42,8 @@ def here():
     return {'hvvh':'bjb'}
 @app.get('/clear/')
 def clear():
+    if not os.path.exists('inputs'):
+        os.makedirs('inputs')
     folder = 'inputs'
     for filename in os.listdir(folder):
         file_path = os.path.join(folder, filename)
