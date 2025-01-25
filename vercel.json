@@ -11,9 +11,6 @@
       "src": "/(.*)",
       "dest": "server.py"
     }
-  ],
-  "config": {
-    "maxLambdaSize": "2000mb"
-  }
+  ]
 
 }
