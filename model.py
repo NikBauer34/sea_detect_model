@@ -13,7 +13,7 @@ def get_bird(image_path: str):
     print(xyxy)
     if len(xyxy) == 0:
         print('no')
-        return [False, 'no detections']
+        return [False, 'no mazut detected']
 
     else:
         let_go = False
@@ -31,13 +31,13 @@ def get_bird(image_path: str):
                 w, h = x2 - x1, y2 - y1
                 # Class Name
                 cls = int(clss[ind])
-                cvzone.cornerRect(img, (x1 - 10, y1 - 10, w+25, h+25), rt=1, colorC = (0, 0, 255) if cls == 1 else (0, 255, 0))
+                cvzone.cornerRect(img, (x1 - 10, y1 - 10, w+25, h+25), rt=3, colorC = (0, 0, 255) if cls == 1 else (0, 255, 0))
             # Confidence
             
-                cvzone.putTextRect(img, f'{classNames[cls]}', (max(0, x1-10), max(35, y1-10)), scale=1, thickness=1, colorB = (0, 0, 255) if cls == 1 else (0, 255, 0), colorR = (0, 0, 255) if cls == 1 else (0, 255, 0), border=2)
+                # cvzone.putTextRect(img, f'{classNames[cls]}', (max(0, x1-10), max(35, y1-10)), scale=1, thickness=1, colorB = (0, 0, 255) if cls == 1 else (0, 255, 0), colorR = (0, 0, 255) if cls == 1 else (0, 255, 0), border=2)
 
             cv2.imwrite(image_path, img)
 
-            return [True, f'detected: {clss.count(0)} clean, {clss.count(1)} mazut']
+            return [True, f'mazut detected']
         else:
-            return [False, f'detected: {clss.count(0)} clean, 0 mazut']
+            return [False, f'only clean detected']

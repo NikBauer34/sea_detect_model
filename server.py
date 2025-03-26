@@ -97,6 +97,7 @@ async def upload_video(img: UploadFile = File(...), camera_name = Form(...), gps
     # img.filename = f"new.jpg"
     print(data)
     print(img)
+    print(camera_name)
     message = 'skipped'
     contents = await img.read()
 
@@ -104,14 +105,18 @@ async def upload_video(img: UploadFile = File(...), camera_name = Form(...), gps
         f.write(contents)
     if not camera_name in freeze_list:
         pred = get_bird(f"{IMAGEDIR}{img.filename}")
+        # print(pred)
         message = pred[1]
         if pred[0] == True:
+            # print('passed')
             if camera_name in data:
                 freeze_list.append(camera_name)
+                # print('ggvvhvh')
                 files={'files': open(f"{IMAGEDIR}{img.filename}", "rb")}
                 values={'camera_name': camera_name, 'gps': gps, 'chat_id': data[camera_name]}
                 r = requests.post('https://sea-bot.onrender.com/upload_file', files=files, data=values)
                 print(values)
+                #https://sea-bot.onrender.com/upload_file
     
     return {'data': message}
 #http://127.0.0.1:70/ типа так
